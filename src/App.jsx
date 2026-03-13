@@ -590,6 +590,7 @@ const lesson12Vocab = [
   { word: "有趣", pinyin: "yǒu qù", meaning: "interesting" }
 ]
 
+
 const fullVocabList = [
   ...lesson1Vocab,
   ...lesson2Vocab,
@@ -603,7 +604,6 @@ const fullVocabList = [
   ...lesson10Vocab,
   ...lesson11Vocab,
   ...lesson12Vocab
-
 ];
 
 // --- Standard Audio Helper ---
@@ -637,7 +637,7 @@ const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideA
   useEffect(() => {
     let isMounted = true;
 
-    loadHanziWriter().then(HanziWriter => {
+    loadHanziWriter().then((HanziWriter) => {
       if (!isMounted || !containerRef.current) return;
 
       containerRef.current.innerHTML = '';
@@ -645,7 +645,7 @@ const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideA
 
       const chars = word.split('');
 
-      chars.forEach(char => {
+      chars.forEach((char) => {
         const charDiv = document.createElement('div');
         charDiv.className = `inline-block m-1 bg-white rounded-lg ${showOutline ? 'border-2 border-slate-100 shadow-sm' : ''}`;
         const size = chars.length > 3 ? 60 : 80;
@@ -659,7 +659,7 @@ const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideA
           padding: 8,
           strokeAnimationSpeed: 1.5,
           delayBetweenStrokes: 50,
-          showOutline: showOutline,
+          showOutline,
           strokeColor: '#4f46e5',
           outlineColor: '#e2e8f0',
         });
@@ -677,7 +677,7 @@ const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideA
   const animateAllStrokes = async (e) => {
     if (e) e.stopPropagation();
     for (const writer of writersRef.current) {
-      await new Promise(resolve => writer.animateCharacter({ onComplete: resolve }));
+      await new Promise((resolve) => writer.animateCharacter({ onComplete: resolve }));
     }
   };
 
@@ -746,9 +746,9 @@ export default function App() {
     setCurrentDeck(shuffledDeck);
 
     if (mode === 'quiz' || mode === 'reverse_quiz' || mode === 'hanzi_quiz') {
-      const questions = shuffledDeck.map(card => {
+      const questions = shuffledDeck.map((card) => {
         const options = [card];
-        const availableDistractors = fullVocabList.filter(v => v.word !== card.word);
+        const availableDistractors = fullVocabList.filter((v) => v.word !== card.word);
         const shuffledDistractors = [...availableDistractors].sort(() => Math.random() - 0.5);
         for (let i = 0; i < 3 && i < shuffledDistractors.length; i++) {
           options.push(shuffledDistractors[i]);
@@ -767,7 +767,7 @@ export default function App() {
 
   const toggleLesson = (lesson) => {
     if (selectedLessons.includes(lesson)) {
-      setSelectedLessons(selectedLessons.filter(l => l !== lesson));
+      setSelectedLessons(selectedLessons.filter((l) => l !== lesson));
     } else {
       setSelectedLessons([...selectedLessons, lesson]);
     }
@@ -784,11 +784,11 @@ export default function App() {
   }, [currentDeck.length]);
 
   const nextQuestion = useCallback(() => {
-    if (currentIndex + 1 < quizQuestions.length) setCurrentIndex(prev => prev + 1);
+    if (currentIndex + 1 < quizQuestions.length) setCurrentIndex((prev) => prev + 1);
   }, [currentIndex, quizQuestions.length]);
 
   const prevQuestion = useCallback(() => {
-    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
+    if (currentIndex > 0) setCurrentIndex((prev) => prev - 1);
   }, [currentIndex]);
 
   useEffect(() => {
@@ -816,9 +816,9 @@ export default function App() {
     const currentQ = quizQuestions[currentIndex];
     const isCorrect = option.word === currentQ.card.word;
 
-    setQuizAnswers(prev => ({
+    setQuizAnswers((prev) => ({
       ...prev,
-      [currentIndex]: { option, isCorrect }
+      [currentIndex]: { option, isCorrect },
     }));
 
     if (isCorrect && quizAudioEnabled) {
@@ -826,7 +826,7 @@ export default function App() {
     }
   };
 
-  const correctCount = Object.values(quizAnswers).filter(a => a.isCorrect).length;
+  const correctCount = Object.values(quizAnswers).filter((a) => a.isCorrect).length;
   const totalAnswered = Object.keys(quizAnswers).length;
 
   // --- Render Functions ---
@@ -844,14 +844,13 @@ export default function App() {
       { id: 'lesson10', title: 'Lesson 10', subtitle: '购物​' },
       { id: 'lesson11', title: 'Lesson 11', subtitle: '农历新年' },
       { id: 'lesson12', title: 'Lesson 12', subtitle: '中秋节' },
-
     ];
 
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center w-full">
         <div className="bg-white p-8 md:p-10 rounded-3xl shadow-xl max-w-4xl w-full border-t-8 border-indigo-500">
           <div className="flex flex-col items-center justify-center mb-10">
-             <div className="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mb-4">
+            <div className="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mb-4">
               <GraduationCap size={40} className="text-indigo-600" />
             </div>
             <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">CHI 120 Study App</h1>
@@ -859,13 +858,13 @@ export default function App() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-8 text-left">
-            {lessonOptions.map(lesson => (
+            {lessonOptions.map((lesson) => (
               <label
                 key={lesson.id}
                 className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${
                   selectedLessons.includes(lesson.id)
-                  ? 'border-indigo-500 bg-indigo-50 shadow-sm'
-                  : 'border-slate-200 hover:bg-slate-50'
+                    ? 'border-indigo-500 bg-indigo-50 shadow-sm'
+                    : 'border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 <input
@@ -958,14 +957,14 @@ export default function App() {
 
             {/* Back of Card */}
             <div className="absolute inset-0 backface-hidden bg-white rounded-2xl border border-slate-100 rotate-y-180 flex flex-col items-center justify-center p-8 text-center">
-               <button onClick={(e) => playBrowserAudio(currentCard.word, e)} className="absolute top-4 right-4 p-3 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 rounded-full transition-colors z-10">
-                 <Volume2 size={24} />
-               </button>
-               <span className="text-sm font-bold text-indigo-500 uppercase tracking-wider block mb-2">Pinyin</span>
-               <h2 className="text-5xl font-bold text-slate-800 mb-6">{currentCard.pinyin}</h2>
-               <div className="w-16 h-1 bg-indigo-100 rounded-full mb-6"></div>
-               <span className="text-sm font-bold text-indigo-500 uppercase tracking-wider block mb-2">Meaning</span>
-               <p className="text-3xl text-slate-600 font-medium leading-tight">{currentCard.meaning}</p>
+              <button onClick={(e) => playBrowserAudio(currentCard.word, e)} className="absolute top-4 right-4 p-3 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 rounded-full transition-colors z-10">
+                <Volume2 size={24} />
+              </button>
+              <span className="text-sm font-bold text-indigo-500 uppercase tracking-wider block mb-2">Pinyin</span>
+              <h2 className="text-5xl font-bold text-slate-800 mb-6">{currentCard.pinyin}</h2>
+              <div className="w-16 h-1 bg-indigo-100 rounded-full mb-6"></div>
+              <span className="text-sm font-bold text-indigo-500 uppercase tracking-wider block mb-2">Meaning</span>
+              <p className="text-3xl text-slate-600 font-medium leading-tight">{currentCard.meaning}</p>
             </div>
           </div>
         </div>
@@ -1063,25 +1062,25 @@ export default function App() {
                 <h2 className="text-6xl font-extrabold text-slate-800 text-center mb-2 tracking-widest">{currentQ.card.word}</h2>
                 {showPinyinInStrokeQuiz && <p className="text-2xl font-bold text-indigo-600 mb-4">{currentQ.card.pinyin}</p>}
                 <div className={`scale-100 sm:scale-110 ${!showPinyinInStrokeQuiz ? 'mt-4' : ''}`}>
-                   <StrokeOrderAnimator key={`std-${currentQ.card.word}`} word={currentQ.card.word} showOutline={true} autoPlay={true} hideAnimateButton={false} />
+                  <StrokeOrderAnimator key={`std-${currentQ.card.word}`} word={currentQ.card.word} showOutline={true} autoPlay={true} hideAnimateButton={true} />
                 </div>
               </div>
             </>
           )}
 
           {(isReverse || isHanziMatch) && currentAnswer && (
-              <div className="mt-6 flex flex-col items-center animate-fade-in border-t border-slate-100 w-full pt-6">
-                <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Correct Hanzi</p>
-                {isReverse && <p className="text-lg font-bold text-indigo-600 mb-2">{currentQ.card.pinyin}</p>}
-                <div className="scale-75 origin-top"><StrokeOrderAnimator key={`rev-${currentQ.card.word}`} word={currentQ.card.word} showOutline={true} autoPlay={true} hideAnimateButton={false}/></div>
-              </div>
+            <div className="mt-6 flex flex-col items-center animate-fade-in border-t border-slate-100 w-full pt-6">
+              <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Correct Hanzi</p>
+              {isReverse && <p className="text-lg font-bold text-indigo-600 mb-2">{currentQ.card.pinyin}</p>}
+              <div className="scale-75 origin-top"><StrokeOrderAnimator key={`rev-${currentQ.card.word}`} word={currentQ.card.word} showOutline={true} autoPlay={true} hideAnimateButton={true} /></div>
+            </div>
           )}
         </div>
 
         {/* Options Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full px-4 mb-6">
           {currentQ.options.map((option, idx) => {
-            let buttonClass = "p-5 rounded-2xl border-2 text-left transition-all focus:outline-none flex items-center justify-between ";
+            let buttonClass = 'p-5 rounded-2xl border-2 text-left transition-all focus:outline-none flex items-center justify-between ';
             let icon = null;
 
             if (currentAnswer) {
@@ -1089,16 +1088,16 @@ export default function App() {
               const isSelected = currentAnswer.option.word === option.word;
 
               if (isCorrect) {
-                buttonClass += "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm";
+                buttonClass += 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm';
                 icon = <CheckCircle2 size={24} className="text-emerald-500 ml-3 shrink-0" />;
               } else if (isSelected && !currentAnswer.isCorrect) {
-                buttonClass += "border-rose-500 bg-rose-50 text-rose-700 shadow-sm";
+                buttonClass += 'border-rose-500 bg-rose-50 text-rose-700 shadow-sm';
                 icon = <XCircle size={24} className="text-rose-500 ml-3 shrink-0" />;
               } else {
-                buttonClass += "border-slate-200 bg-slate-50 text-slate-400 opacity-50";
+                buttonClass += 'border-slate-200 bg-slate-50 text-slate-400 opacity-50';
               }
             } else {
-              buttonClass += "border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-md active:scale-[0.98]";
+              buttonClass += 'border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-md active:scale-[0.98]';
             }
 
             return (
@@ -1119,20 +1118,20 @@ export default function App() {
 
         {/* Navigation Controls */}
         <div className="flex items-center justify-between w-full mt-4 px-4">
-           <button onClick={prevQuestion} disabled={currentIndex === 0}
-             className="p-4 bg-white text-slate-600 rounded-full shadow hover:shadow-md hover:-translate-x-1 hover:text-indigo-600 transition-all disabled:opacity-30 disabled:hover:translate-x-0">
-             <ChevronLeft size={28} />
-           </button>
+          <button onClick={prevQuestion} disabled={currentIndex === 0}
+            className="p-4 bg-white text-slate-600 rounded-full shadow hover:shadow-md hover:-translate-x-1 hover:text-indigo-600 transition-all disabled:opacity-30 disabled:hover:translate-x-0">
+            <ChevronLeft size={28} />
+          </button>
 
-           {currentIndex === quizQuestions.length - 1 ? (
-             <button onClick={() => setQuizFinished(true)} className="px-8 py-4 bg-indigo-600 text-white font-bold rounded-full shadow-lg hover:bg-indigo-700 hover:scale-105 transition-all flex items-center gap-2">
-               Finish Quiz <CheckCircle2 size={20} />
-             </button>
-           ) : (
-             <button onClick={nextQuestion} className="p-4 bg-white text-slate-600 rounded-full shadow hover:shadow-md hover:translate-x-1 hover:text-indigo-600 transition-all">
-               <ChevronRight size={28} />
-             </button>
-           )}
+          {currentIndex === quizQuestions.length - 1 ? (
+            <button onClick={() => setQuizFinished(true)} className="px-8 py-4 bg-indigo-600 text-white font-bold rounded-full shadow-lg hover:bg-indigo-700 hover:scale-105 transition-all flex items-center gap-2">
+              Finish Quiz <CheckCircle2 size={20} />
+            </button>
+          ) : (
+            <button onClick={nextQuestion} className="p-4 bg-white text-slate-600 rounded-full shadow hover:shadow-md hover:translate-x-1 hover:text-indigo-600 transition-all">
+              <ChevronRight size={28} />
+            </button>
+          )}
         </div>
       </div>
     );
@@ -1158,9 +1157,9 @@ export default function App() {
 
             {appMode === 'study' ? (
               <button onClick={() => {
-                  const shuffled = [...currentDeck].sort(() => Math.random() - 0.5);
-                  setCurrentDeck(shuffled); setCurrentIndex(0); setIsFlipped(false);
-                }}
+                const shuffled = [...currentDeck].sort(() => Math.random() - 0.5);
+                setCurrentDeck(shuffled); setCurrentIndex(0); setIsFlipped(false);
+              }}
                 className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-bold px-4 py-2 hover:bg-slate-50 rounded-full text-sm"
               >
                 <Shuffle size={16} /> SHUFFLE
@@ -1177,14 +1176,14 @@ export default function App() {
         {(appMode === 'quiz' || appMode === 'reverse_quiz' || appMode === 'hanzi_quiz') && renderQuizMode()}
       </div>
 
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{ __html: `
         .perspective-1000 { perspective: 1000px; }
         .preserve-3d { transform-style: preserve-3d; }
         .backface-hidden { backface-visibility: hidden; }
         .rotate-y-180 { transform: rotateY(180deg); }
         .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      `}} />
+      ` }} />
     </div>
   );
 }
