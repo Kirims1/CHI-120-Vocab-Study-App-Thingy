@@ -593,10 +593,10 @@ const lesson12Vocab = [
 const fullVocabList = [
   ...lesson1Vocab,
   ...lesson2Vocab,
-  ...lesson3Vocab,
-  ...lesson4Vocab,
-  ...lesson5Vocab,
-  ...lesson6Vocab,
+  ...lesson3Vocab, 
+  ...lesson4Vocab, 
+  ...lesson5Vocab, 
+  ...lesson6Vocab, 
   ...lesson7Vocab,
   ...lesson8Vocab,
   ...lesson9Vocab,
@@ -636,15 +636,15 @@ const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideA
 
   useEffect(() => {
     let isMounted = true;
-
+    
     loadHanziWriter().then(HanziWriter => {
       if (!isMounted || !containerRef.current) return;
-
+      
       containerRef.current.innerHTML = '';
       writersRef.current = [];
 
       const chars = word.split('');
-
+      
       chars.forEach(char => {
         const charDiv = document.createElement('div');
         charDiv.className = `inline-block m-1 bg-white rounded-lg ${showOutline ? 'border-2 border-slate-100 shadow-sm' : ''}`;
@@ -683,9 +683,9 @@ const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideA
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
-      <div
-        ref={containerRef}
-        className="flex flex-wrap justify-center items-center min-h-[90px]"
+      <div 
+        ref={containerRef} 
+        className="flex flex-wrap justify-center items-center min-h-[90px]" 
       />
       {!hideAnimateButton && (
         <button
@@ -702,10 +702,10 @@ const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideA
 
 // --- Main App Component ---
 export default function App() {
-  const [appMode, setAppMode] = useState('menu');
+  const [appMode, setAppMode] = useState('menu'); 
   const [selectedLessons, setSelectedLessons] = useState(['lesson6']);
   const [currentDeck, setCurrentDeck] = useState([]);
-
+  
   // Settings
   const [quizAudioEnabled, setQuizAudioEnabled] = useState(false);
   const [showPinyinInStrokeQuiz, setShowPinyinInStrokeQuiz] = useState(true);
@@ -741,10 +741,10 @@ export default function App() {
   const startMode = (mode) => {
     const deck = buildDeck();
     if (deck.length === 0) return;
-
+    
     const shuffledDeck = [...deck].sort(() => Math.random() - 0.5);
     setCurrentDeck(shuffledDeck);
-
+    
     if (mode === 'quiz' || mode === 'reverse_quiz' || mode === 'hanzi_quiz') {
       const questions = shuffledDeck.map(card => {
         const options = [card];
@@ -759,7 +759,7 @@ export default function App() {
       setQuizAnswers({});
       setQuizFinished(false);
     }
-
+    
     setCurrentIndex(0);
     setIsFlipped(false);
     setAppMode(mode);
@@ -811,16 +811,16 @@ export default function App() {
 
   // --- Quiz Logic ---
   const handleQuizAnswer = (option) => {
-    if (quizAnswers[currentIndex]) return;
-
+    if (quizAnswers[currentIndex]) return; 
+    
     const currentQ = quizQuestions[currentIndex];
     const isCorrect = option.word === currentQ.card.word;
-
+    
     setQuizAnswers(prev => ({
       ...prev,
       [currentIndex]: { option, isCorrect }
     }));
-
+    
     if (isCorrect && quizAudioEnabled) {
       playBrowserAudio(currentQ.card.word);
     }
@@ -860,16 +860,16 @@ export default function App() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-8 text-left">
             {lessonOptions.map(lesson => (
-              <label
-                key={lesson.id}
+              <label 
+                key={lesson.id} 
                 className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                  selectedLessons.includes(lesson.id)
-                  ? 'border-indigo-500 bg-indigo-50 shadow-sm'
+                  selectedLessons.includes(lesson.id) 
+                  ? 'border-indigo-500 bg-indigo-50 shadow-sm' 
                   : 'border-slate-200 hover:bg-slate-50'
                 }`}
               >
-                <input
-                  type="checkbox"
+                <input 
+                  type="checkbox" 
                   className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 mr-3"
                   checked={selectedLessons.includes(lesson.id)}
                   onChange={() => toggleLesson(lesson.id)}
@@ -939,11 +939,11 @@ export default function App() {
 
   const renderStudyMode = () => {
     const currentCard = currentDeck[currentIndex];
-
+    
     return (
       <div className="flex flex-col items-center justify-center w-full max-w-2xl mt-4 pb-12">
         <div className="w-full relative group mb-8 perspective-1000">
-          <div
+          <div 
             onClick={() => !isFlipped && setIsFlipped(true)}
             className={`relative w-full transition-transform duration-500 preserve-3d shadow-xl rounded-2xl min-h-[400px] cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`}
           >
@@ -1016,7 +1016,7 @@ export default function App() {
 
     const currentQ = quizQuestions[currentIndex];
     const currentAnswer = quizAnswers[currentIndex];
-
+    
     const isReverse = appMode === 'reverse_quiz';
     const isHanziMatch = appMode === 'hanzi_quiz';
     const isStrokeQuiz = appMode === 'quiz';
@@ -1073,15 +1073,7 @@ export default function App() {
               <div className="mt-6 flex flex-col items-center animate-fade-in border-t border-slate-100 w-full pt-6">
                 <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Correct Hanzi</p>
                 {isReverse && <p className="text-lg font-bold text-indigo-600 mb-2">{currentQ.card.pinyin}</p>}
-                <div className="w-full flex justify-center">
-                  <StrokeOrderAnimator
-                    key={`rev-${currentQ.card.word}`}
-                    word={currentQ.card.word}
-                    showOutline={true}
-                    autoPlay={true}
-                    hideAnimateButton={false}
-                  />
-                </div>
+                <div className="scale-75 origin-top"><StrokeOrderAnimator key={`rev-${currentQ.card.word}`} word={currentQ.card.word} showOutline={true} autoPlay={true} hideAnimateButton={false}/></div>
               </div>
           )}
         </div>
@@ -1131,7 +1123,7 @@ export default function App() {
              className="p-4 bg-white text-slate-600 rounded-full shadow hover:shadow-md hover:-translate-x-1 hover:text-indigo-600 transition-all disabled:opacity-30 disabled:hover:translate-x-0">
              <ChevronLeft size={28} />
            </button>
-
+           
            {currentIndex === quizQuestions.length - 1 ? (
              <button onClick={() => setQuizFinished(true)} className="px-8 py-4 bg-indigo-600 text-white font-bold rounded-full shadow-lg hover:bg-indigo-700 hover:scale-105 transition-all flex items-center gap-2">
                Finish Quiz <CheckCircle2 size={20} />
@@ -1148,7 +1140,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800 selection:bg-indigo-200">
-
+      
       {/* Top Navigation */}
       {appMode !== 'menu' && (
         <div className="w-full bg-white shadow-sm sticky top-0 z-50">
@@ -1156,14 +1148,14 @@ export default function App() {
             <button onClick={() => setAppMode('menu')} className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-bold px-4 py-2 hover:bg-slate-50 rounded-full text-sm">
               <ArrowLeft size={18} /> MENU
             </button>
-
+            
             <h2 className="font-extrabold text-slate-800 tracking-tight hidden sm:block text-lg">
               {appMode === 'study' && 'Flashcards'}
               {appMode === 'quiz' && 'Stroke Order Quiz'}
               {appMode === 'reverse_quiz' && 'Reverse Translation Quiz'}
               {appMode === 'hanzi_quiz' && 'Hanzi Match Quiz'}
             </h2>
-
+            
             {appMode === 'study' ? (
               <button onClick={() => {
                   const shuffled = [...currentDeck].sort(() => Math.random() - 0.5);
@@ -1196,3 +1188,7 @@ export default function App() {
     </div>
   );
 }
+
+
+
+
