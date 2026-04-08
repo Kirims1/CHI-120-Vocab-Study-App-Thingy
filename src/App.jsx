@@ -590,20 +590,21 @@ const lesson12Vocab = [
   { word: "有趣", pinyin: "yǒu qù", meaning: "interesting" }
 ]
 
-const masterQuizList = {
-  "1": { title: "Lesson 1", subtitle: "自我介绍", dialogue: [], reading: [], vocab: lesson1Vocab },
-  "2": { title: "Lesson 2", subtitle: "我的家", dialogue: [], reading: [], vocab: lesson2Vocab },
-  "3": { title: "Lesson 3", subtitle: "我的大学", dialogue: [], reading: [], vocab: lesson3Vocab },
-  "4": { title: "Lesson 4", subtitle: "我的学生生活", dialogue: [], reading: [], vocab: lesson4Vocab },
-  "5": { title: "Lesson 5", subtitle: "我的街区", dialogue: [], reading: [], vocab: lesson5Vocab },
-  "6": { title: "Lesson 6", subtitle: "中国城", dialogue: [], reading: [], vocab: lesson6Vocab },
-  "7": { title: "Lesson 7", subtitle: "在中餐馆吃饭", dialogue: [], reading: [], vocab: lesson7Vocab },
-  "8": { title: "Lesson 8", subtitle: "在朋友家做客", dialogue: [], reading: [], vocab: lesson8Vocab },
-  "9": { title: "Lesson 9", subtitle: "音乐", dialogue: [], reading: [], vocab: lesson9Vocab },
-  "10": { title: "Lesson 10", subtitle: "购物", dialogue: [], reading: [], vocab: lesson10Vocab },
-  "11": { title: "Lesson 11", subtitle: "农历新年", dialogue: [], reading: [], vocab: lesson11Vocab },
-  "12": { title: "Lesson 12", subtitle: "中秋节", dialogue: [], reading: [], vocab: lesson12Vocab },
-};
+const fullVocabList = [
+  ...lesson1Vocab,
+  ...lesson2Vocab,
+  ...lesson3Vocab, 
+  ...lesson4Vocab, 
+  ...lesson5Vocab, 
+  ...lesson6Vocab, 
+  ...lesson7Vocab,
+  ...lesson8Vocab,
+  ...lesson9Vocab,
+  ...lesson10Vocab,
+  ...lesson11Vocab,
+  ...lesson12Vocab
+
+];
 
 // --- Standard Audio Helper ---
 const playBrowserAudio = (text, e) => {
@@ -627,17 +628,23 @@ const loadHanziWriter = () => {
   });
 };
 
+// --- Components ---
+
 const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideAnimateButton = false }) => {
   const containerRef = useRef(null);
   const writersRef = useRef([]);
 
   useEffect(() => {
     let isMounted = true;
+    
     loadHanziWriter().then(HanziWriter => {
       if (!isMounted || !containerRef.current) return;
+      
       containerRef.current.innerHTML = '';
       writersRef.current = [];
+
       const chars = word.split('');
+      
       chars.forEach(char => {
         const charDiv = document.createElement('div');
         charDiv.className = `inline-block m-1 bg-white rounded-lg ${showOutline ? 'border-2 border-slate-100 shadow-sm' : ''}`;
@@ -645,24 +652,25 @@ const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideA
         charDiv.style.width = `${size}px`;
         charDiv.style.height = `${size}px`;
         containerRef.current.appendChild(charDiv);
-        try {
-          const writer = HanziWriter.create(charDiv, char, {
-            width: size,
-            height: size,
-            padding: 8,
-            strokeAnimationSpeed: 1.5,
-            delayBetweenStrokes: 50,
-            showOutline,
-            strokeColor: '#4f46e5',
-            outlineColor: '#e2e8f0',
-          });
-          writersRef.current.push(writer);
-        } catch {
-          charDiv.innerHTML = `<span style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:${size*0.6}px;color:#94a3b8;">${char}</span>`;
-        }
+
+        const writer = HanziWriter.create(charDiv, char, {
+          width: size,
+          height: size,
+          padding: 8,
+          strokeAnimationSpeed: 1.5,
+          delayBetweenStrokes: 50,
+          showOutline: showOutline,
+          strokeColor: '#4f46e5',
+          outlineColor: '#e2e8f0',
+        });
+        writersRef.current.push(writer);
       });
-      if (autoPlay) animateAllStrokes();
+
+      if (autoPlay) {
+        animateAllStrokes();
+      }
     });
+
     return () => { isMounted = false; };
   }, [word, showOutline, autoPlay]);
 
@@ -675,9 +683,15 @@ const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideA
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
-      <div ref={containerRef} className="flex flex-wrap justify-center items-center min-h-[90px]" />
-      {!hideAnimateButton && writersRef.current.length > 0 && (
-        <button onClick={animateAllStrokes} className="flex items-center gap-2 px-5 py-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:scale-105 rounded-full transition-all font-semibold shadow-sm text-sm">
+      <div 
+        ref={containerRef} 
+        className="flex flex-wrap justify-center items-center min-h-[90px]" 
+      />
+      {!hideAnimateButton && (
+        <button
+          onClick={animateAllStrokes}
+          className="flex items-center gap-2 px-5 py-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:scale-105 rounded-full transition-all font-semibold shadow-sm text-sm"
+        >
           <Play size={16} fill="currentColor" />
           Animate Strokes
         </button>
@@ -686,154 +700,495 @@ const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideA
   );
 };
 
+// --- Main App Component ---
 export default function App() {
-  const [appMode, setAppMode] = useState('menu');
-  const [selectedUnits, setSelectedUnits] = useState(['6']);
-  const [studyDialogue, setStudyDialogue] = useState(true);
-  const [studyReading, setStudyReading] = useState(true);
-  const [studyVocab, setStudyVocab] = useState(true);
+  const [appMode, setAppMode] = useState('menu'); 
+  const [selectedLessons, setSelectedLessons] = useState(['lesson6']);
   const [currentDeck, setCurrentDeck] = useState([]);
+  
+  // Settings
   const [quizAudioEnabled, setQuizAudioEnabled] = useState(false);
   const [showPinyinInStrokeQuiz, setShowPinyinInStrokeQuiz] = useState(true);
   const [showPinyinInReverseQuiz, setShowPinyinInReverseQuiz] = useState(true);
+
+  // Flashcard State
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+
+  // Quiz State
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizFinished, setQuizFinished] = useState(false);
 
+
   const buildDeck = () => {
     let deck = [];
-    selectedUnits.forEach((unit) => {
-      const data = masterQuizList[unit];
-      if (!data) return;
-      if (studyDialogue) deck = [...deck, ...(data.dialogue || [])];
-      if (studyReading) deck = [...deck, ...(data.reading || [])];
-      if (studyVocab) deck = [...deck, ...(data.vocab || [])];
-    });
+    if (selectedLessons.includes('lesson1')) deck = [...deck, ...lesson1Vocab];
+    if (selectedLessons.includes('lesson2')) deck = [...deck, ...lesson2Vocab];
+    if (selectedLessons.includes('lesson3')) deck = [...deck, ...lesson3Vocab];
+    if (selectedLessons.includes('lesson4')) deck = [...deck, ...lesson4Vocab];
+    if (selectedLessons.includes('lesson5')) deck = [...deck, ...lesson5Vocab];
+    if (selectedLessons.includes('lesson6')) deck = [...deck, ...lesson6Vocab];
+    if (selectedLessons.includes('lesson7')) deck = [...deck, ...lesson7Vocab];
+    if (selectedLessons.includes('lesson8')) deck = [...deck, ...lesson8Vocab];
+    if (selectedLessons.includes('lesson9')) deck = [...deck, ...lesson9Vocab];
+    if (selectedLessons.includes('lesson10')) deck = [...deck, ...lesson10Vocab];
+    if (selectedLessons.includes('lesson11')) deck = [...deck, ...lesson11Vocab];
+    if (selectedLessons.includes('lesson12')) deck = [...deck, ...lesson12Vocab];
     return deck;
   };
 
-  const getGlobalVocab = () => Object.values(masterQuizList).flatMap((u) => [...(u.dialogue || []), ...(u.reading || []), ...(u.vocab || [])]);
-
   const startMode = (mode) => {
     const deck = buildDeck();
-    if (!deck.length) return;
+    if (deck.length === 0) return;
+    
     const shuffledDeck = [...deck].sort(() => Math.random() - 0.5);
     setCurrentDeck(shuffledDeck);
-    if (['quiz', 'reverse_quiz', 'hanzi_quiz'].includes(mode)) {
-      const globalVocab = getGlobalVocab();
-      const questions = shuffledDeck.map((card) => {
-        const distractors = globalVocab.filter((v) => v.word !== card.word).sort(() => Math.random() - 0.5).slice(0, 3);
-        return { card, options: [card, ...distractors].sort(() => Math.random() - 0.5) };
+    
+    if (mode === 'quiz' || mode === 'reverse_quiz' || mode === 'hanzi_quiz') {
+      const questions = shuffledDeck.map(card => {
+        const options = [card];
+        const availableDistractors = fullVocabList.filter(v => v.word !== card.word);
+        const shuffledDistractors = [...availableDistractors].sort(() => Math.random() - 0.5);
+        for (let i = 0; i < 3 && i < shuffledDistractors.length; i++) {
+          options.push(shuffledDistractors[i]);
+        }
+        return { card, options: options.sort(() => Math.random() - 0.5) };
       });
       setQuizQuestions(questions);
       setQuizAnswers({});
       setQuizFinished(false);
     }
+    
     setCurrentIndex(0);
     setIsFlipped(false);
     setAppMode(mode);
   };
 
-  const startReviewMode = () => {
-    const wrongQuestions = quizQuestions.filter((_, idx) => quizAnswers[idx] && !quizAnswers[idx].isCorrect);
-    if (!wrongQuestions.length) return;
-    setQuizQuestions([...wrongQuestions].sort(() => Math.random() - 0.5));
-    setQuizAnswers({});
-    setCurrentIndex(0);
-    setQuizFinished(false);
+  const toggleLesson = (lesson) => {
+    if (selectedLessons.includes(lesson)) {
+      setSelectedLessons(selectedLessons.filter(l => l !== lesson));
+    } else {
+      setSelectedLessons([...selectedLessons, lesson]);
+    }
   };
 
-  const toggleUnit = (unit) => setSelectedUnits((prev) => prev.includes(unit) ? prev.filter((u) => u !== unit) : [...prev, unit]);
-  const nextCard = useCallback(() => { setIsFlipped(false); setTimeout(() => setCurrentIndex((p) => (p + 1) % currentDeck.length), 150); }, [currentDeck.length]);
-  const prevCard = useCallback(() => { setIsFlipped(false); setTimeout(() => setCurrentIndex((p) => (p - 1 + currentDeck.length) % currentDeck.length), 150); }, [currentDeck.length]);
-  const nextQuestion = useCallback(() => { if (currentIndex + 1 < quizQuestions.length) setCurrentIndex((p) => p + 1); }, [currentIndex, quizQuestions.length]);
-  const prevQuestion = useCallback(() => { if (currentIndex > 0) setCurrentIndex((p) => p - 1); }, [currentIndex]);
+  const nextCard = useCallback(() => {
+    setIsFlipped(false);
+    setTimeout(() => setCurrentIndex((prev) => (prev + 1) % currentDeck.length), 150);
+  }, [currentDeck.length]);
+
+  const prevCard = useCallback(() => {
+    setIsFlipped(false);
+    setTimeout(() => setCurrentIndex((prev) => (prev - 1 + currentDeck.length) % currentDeck.length), 150);
+  }, [currentDeck.length]);
+
+  const nextQuestion = useCallback(() => {
+    if (currentIndex + 1 < quizQuestions.length) setCurrentIndex(prev => prev + 1);
+  }, [currentIndex, quizQuestions.length]);
+
+  const prevQuestion = useCallback(() => {
+    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
+  }, [currentIndex]);
 
   useEffect(() => {
     if (appMode === 'menu') return;
     const handleKeyDown = (e) => {
-      if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
       if (appMode === 'study') {
         if (e.key === 'ArrowRight') nextCard();
         else if (e.key === 'ArrowLeft') prevCard();
         else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setIsFlipped((f) => !f); }
-      } else if (['quiz', 'reverse_quiz', 'hanzi_quiz'].includes(appMode) && !quizFinished) {
-        if (e.key === 'ArrowRight') nextQuestion();
-        else if (e.key === 'ArrowLeft') prevQuestion();
+      } else if (appMode === 'quiz' || appMode === 'reverse_quiz' || appMode === 'hanzi_quiz') {
+        if (!quizFinished) {
+          if (e.key === 'ArrowRight') nextQuestion();
+          else if (e.key === 'ArrowLeft') prevQuestion();
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [appMode, nextCard, prevCard, nextQuestion, prevQuestion, quizFinished]);
 
+  // --- Quiz Logic ---
   const handleQuizAnswer = (option) => {
-    if (quizAnswers[currentIndex]) return;
+    if (quizAnswers[currentIndex]) return; 
+    
     const currentQ = quizQuestions[currentIndex];
     const isCorrect = option.word === currentQ.card.word;
-    setQuizAnswers((prev) => ({ ...prev, [currentIndex]: { option, isCorrect } }));
-    if (isCorrect && quizAudioEnabled) playBrowserAudio(currentQ.card.word);
+    
+    setQuizAnswers(prev => ({
+      ...prev,
+      [currentIndex]: { option, isCorrect }
+    }));
+    
+    if (isCorrect && quizAudioEnabled) {
+      playBrowserAudio(currentQ.card.word);
+    }
   };
 
-  const correctCount = Object.values(quizAnswers).filter((a) => a.isCorrect).length;
+  const correctCount = Object.values(quizAnswers).filter(a => a.isCorrect).length;
   const totalAnswered = Object.keys(quizAnswers).length;
-  const canStart = selectedUnits.length > 0 && (studyDialogue || studyReading || studyVocab) && buildDeck().length > 0;
 
-  const renderMenu = () => (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center w-full relative">
-      <div className="bg-white p-8 md:p-10 rounded-3xl shadow-xl max-w-4xl w-full border-t-8 border-indigo-500">
-        <div className="flex flex-col items-center justify-center mb-8">
-          <div className="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mb-4"><GraduationCap size={40} className="text-indigo-600" /></div>
-          <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">CHI 120 Study App</h1>
-          <p className="text-slate-500 font-medium mt-2">Master List Quizzes</p>
-        </div>
-        <div className="mb-6">
-          <h3 className="font-bold text-slate-700 mb-4 uppercase tracking-wider text-sm">1. Select Unit(s)</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-left">
-            {Object.entries(masterQuizList).map(([unitKey, data]) => (
-              <label key={unitKey} className={`flex items-center p-3 border-2 rounded-xl cursor-pointer transition-all ${selectedUnits.includes(unitKey) ? 'border-indigo-500 bg-indigo-50 shadow-sm' : 'border-slate-200 hover:bg-slate-50'}`}>
-                <input type="checkbox" className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 mr-3" checked={selectedUnits.includes(unitKey)} onChange={() => toggleUnit(unitKey)} />
-                <div><p className="font-bold text-slate-800">{data.title}</p><p className="text-xs text-slate-500 font-medium">{data.subtitle}</p></div>
+  // --- Render Functions ---
+  const renderMenu = () => {
+    const lessonOptions = [
+      { id: 'lesson1', title: 'Lesson 1', subtitle: '自我介绍' },
+      { id: 'lesson2', title: 'Lesson 2', subtitle: '我的家' },
+      { id: 'lesson3', title: 'Lesson 3', subtitle: '我的大学' },
+      { id: 'lesson4', title: 'Lesson 4', subtitle: '我的学生生活' },
+      { id: 'lesson5', title: 'Lesson 5', subtitle: '我的街区' },
+      { id: 'lesson6', title: 'Lesson 6', subtitle: '中国城' },
+      { id: 'lesson7', title: 'Lesson 7', subtitle: '在中餐馆吃饭' },
+      { id: 'lesson8', title: 'Lesson 8', subtitle: '在朋友家做客​' },
+      { id: 'lesson9', title: 'Lesson 9', subtitle: '音乐' },
+      { id: 'lesson10', title: 'Lesson 10', subtitle: '购物​' },
+      { id: 'lesson11', title: 'Lesson 11', subtitle: '农历新年' },
+      { id: 'lesson12', title: 'Lesson 12', subtitle: '中秋节' },
+
+    ];
+
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center w-full">
+        <div className="bg-white p-8 md:p-10 rounded-3xl shadow-xl max-w-4xl w-full border-t-8 border-indigo-500">
+          <div className="flex flex-col items-center justify-center mb-10">
+             <div className="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mb-4">
+              <GraduationCap size={40} className="text-indigo-600" />
+            </div>
+            <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">CHI 120 Study App</h1>
+            <p className="text-slate-500 font-medium mt-2">Interactive Flashcards & Quizzes</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-8 text-left">
+            {lessonOptions.map(lesson => (
+              <label 
+                key={lesson.id} 
+                className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                  selectedLessons.includes(lesson.id) 
+                  ? 'border-indigo-500 bg-indigo-50 shadow-sm' 
+                  : 'border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <input 
+                  type="checkbox" 
+                  className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 mr-3"
+                  checked={selectedLessons.includes(lesson.id)}
+                  onChange={() => toggleLesson(lesson.id)}
+                />
+                <div>
+                  <p className="font-bold text-slate-800">{lesson.title}</p>
+                  <p className="text-xs text-slate-500 font-medium">{lesson.subtitle}</p>
+                </div>
               </label>
             ))}
           </div>
-        </div>
-        <div className="mb-8">
-          <h3 className="font-bold text-slate-700 mb-4 uppercase tracking-wider text-sm">2. Select Vocabulary Sections</h3>
-          <div className="flex flex-wrap justify-center gap-4">
-            <label className={`flex items-center cursor-pointer px-6 py-4 rounded-xl border-2 transition-all ${studyDialogue ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:bg-slate-50'}`}><input type="checkbox" className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 mr-3" checked={studyDialogue} onChange={(e) => setStudyDialogue(e.target.checked)} /><span className="font-bold text-slate-800">Dialogue</span></label>
-            <label className={`flex items-center cursor-pointer px-6 py-4 rounded-xl border-2 transition-all ${studyReading ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 hover:bg-slate-50'}`}><input type="checkbox" className="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500 mr-3" checked={studyReading} onChange={(e) => setStudyReading(e.target.checked)} /><span className="font-bold text-slate-800">Short Reading</span></label>
-            <label className={`flex items-center cursor-pointer px-6 py-4 rounded-xl border-2 transition-all ${studyVocab ? 'border-amber-500 bg-amber-50' : 'border-slate-200 hover:bg-slate-50'}`}><input type="checkbox" className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500 mr-3" checked={studyVocab} onChange={(e) => setStudyVocab(e.target.checked)} /><span className="font-bold text-slate-800">Vocabulary</span></label>
+
+          {/* Settings Area */}
+          <div className="bg-slate-50 p-5 rounded-2xl mb-8 border border-slate-200 text-left">
+            <h3 className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
+              <Settings size={18} /> Preferences
+            </h3>
+            <div className="flex flex-wrap gap-x-8 gap-y-4">
+              <label className="flex items-center cursor-pointer group">
+                <input type="checkbox" className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 mr-3 border-slate-300"
+                  checked={quizAudioEnabled} onChange={(e) => setQuizAudioEnabled(e.target.checked)} />
+                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Auto-play audio</span>
+              </label>
+              <label className="flex items-center cursor-pointer group">
+                <input type="checkbox" className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 mr-3 border-slate-300"
+                  checked={showPinyinInStrokeQuiz} onChange={(e) => setShowPinyinInStrokeQuiz(e.target.checked)} />
+                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Pinyin in Stroke Quiz</span>
+              </label>
+              <label className="flex items-center cursor-pointer group">
+                <input type="checkbox" className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 mr-3 border-slate-300"
+                  checked={showPinyinInReverseQuiz} onChange={(e) => setShowPinyinInReverseQuiz(e.target.checked)} />
+                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Pinyin in Reverse Quiz</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button onClick={() => startMode('study')} disabled={selectedLessons.length === 0}
+              className="flex flex-col items-center justify-center py-5 px-3 bg-indigo-600 text-white rounded-xl shadow-md hover:bg-indigo-700 disabled:opacity-50 transition-all hover:-translate-y-1">
+              <BookOpen size={28} className="mb-2" />
+              <span className="font-bold text-lg leading-tight">Flashcards</span>
+              <span className="text-xs font-medium opacity-80 mt-1">Study Vocabulary</span>
+            </button>
+            <button onClick={() => startMode('quiz')} disabled={selectedLessons.length === 0}
+              className="flex flex-col items-center justify-center py-5 px-3 bg-emerald-500 text-white rounded-xl shadow-md hover:bg-emerald-600 disabled:opacity-50 transition-all hover:-translate-y-1">
+              <Play size={28} className="mb-2" />
+              <span className="font-bold text-lg leading-tight">Stroke Quiz</span>
+              <span className="text-xs font-medium opacity-80 mt-1">Chinese → English</span>
+            </button>
+            <button onClick={() => startMode('reverse_quiz')} disabled={selectedLessons.length === 0}
+              className="flex flex-col items-center justify-center py-5 px-3 bg-rose-500 text-white rounded-xl shadow-md hover:bg-rose-600 disabled:opacity-50 transition-all hover:-translate-y-1">
+              <Languages size={28} className="mb-2" />
+              <span className="font-bold text-lg leading-tight">Reverse Quiz</span>
+              <span className="text-xs font-medium opacity-80 mt-1">English → Chinese</span>
+            </button>
+            <button onClick={() => startMode('hanzi_quiz')} disabled={selectedLessons.length === 0}
+              className="flex flex-col items-center justify-center py-5 px-3 bg-amber-500 text-white rounded-xl shadow-md hover:bg-amber-600 disabled:opacity-50 transition-all hover:-translate-y-1">
+              <Type size={28} className="mb-2" />
+              <span className="font-bold text-lg leading-tight">Hanzi Match</span>
+              <span className="text-xs font-medium opacity-80 mt-1">Pinyin → Hanzi</span>
+            </button>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button onClick={() => startMode('study')} disabled={!canStart} className="flex flex-col items-center justify-center py-5 px-3 bg-indigo-600 text-white rounded-xl shadow-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-1"><BookOpen size={28} className="mb-2" /><span className="font-bold text-lg leading-tight">Flashcards</span></button>
-          <button onClick={() => startMode('quiz')} disabled={!canStart} className="flex flex-col items-center justify-center py-5 px-3 bg-emerald-500 text-white rounded-xl shadow-md hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-1"><Play size={28} className="mb-2" /><span className="font-bold text-lg leading-tight">Stroke Quiz</span></button>
-          <button onClick={() => startMode('reverse_quiz')} disabled={!canStart} className="flex flex-col items-center justify-center py-5 px-3 bg-rose-500 text-white rounded-xl shadow-md hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-1"><Languages size={28} className="mb-2" /><span className="font-bold text-lg leading-tight">Reverse Quiz</span></button>
-          <button onClick={() => startMode('hanzi_quiz')} disabled={!canStart} className="flex flex-col items-center justify-center py-5 px-3 bg-amber-500 text-white rounded-xl shadow-md hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-1"><Type size={28} className="mb-2" /><span className="font-bold text-lg leading-tight">Hanzi Match</span></button>
+      </div>
+    );
+  };
+
+  const renderStudyMode = () => {
+    const currentCard = currentDeck[currentIndex];
+    
+    return (
+      <div className="flex flex-col items-center justify-center w-full max-w-2xl mt-4 pb-12">
+        <div className="w-full relative group mb-8 perspective-1000">
+          <div 
+            onClick={() => !isFlipped && setIsFlipped(true)}
+            className={`relative w-full transition-transform duration-500 preserve-3d shadow-xl rounded-2xl min-h-[400px] cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`}
+          >
+            {/* Front of Card */}
+            <div className="absolute inset-0 backface-hidden bg-white rounded-2xl flex flex-col items-center justify-center p-8 border border-slate-100">
+              <button onClick={(e) => playBrowserAudio(currentCard.word, e)} className="absolute top-4 right-4 p-3 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 rounded-full transition-colors z-10">
+                <Volume2 size={24} />
+              </button>
+              <StrokeOrderAnimator word={currentCard.word} />
+              <p className="absolute bottom-6 text-sm text-slate-400 font-medium tracking-widest uppercase">Click to flip</p>
+            </div>
+
+            {/* Back of Card */}
+            <div className="absolute inset-0 backface-hidden bg-white rounded-2xl border border-slate-100 rotate-y-180 flex flex-col items-center justify-center p-8 text-center">
+               <button onClick={(e) => playBrowserAudio(currentCard.word, e)} className="absolute top-4 right-4 p-3 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 rounded-full transition-colors z-10">
+                 <Volume2 size={24} />
+               </button>
+               <span className="text-sm font-bold text-indigo-500 uppercase tracking-wider block mb-2">Pinyin</span>
+               <h2 className="text-5xl font-bold text-slate-800 mb-6">{currentCard.pinyin}</h2>
+               <div className="w-16 h-1 bg-indigo-100 rounded-full mb-6"></div>
+               <span className="text-sm font-bold text-indigo-500 uppercase tracking-wider block mb-2">Meaning</span>
+               <p className="text-3xl text-slate-600 font-medium leading-tight">{currentCard.meaning}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="flex flex-col items-center space-y-6 w-full px-4">
+          <div className="w-full flex items-center gap-4">
+            <span className="text-sm font-semibold text-slate-500 w-12 text-right">{currentIndex + 1}</span>
+            <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+              <div className="h-full bg-indigo-500 transition-all duration-300" style={{ width: `${((currentIndex + 1) / currentDeck.length) * 100}%` }}></div>
+            </div>
+            <span className="text-sm font-semibold text-slate-500 w-12">{currentDeck.length}</span>
+          </div>
+
+          <div className="flex items-center justify-center gap-6">
+            <button onClick={prevCard} className="p-4 bg-white text-slate-600 rounded-full shadow hover:shadow-md hover:-translate-x-1 hover:text-indigo-600 transition-all">
+              <ChevronLeft size={28} />
+            </button>
+            <button onClick={() => setIsFlipped(!isFlipped)} className="px-8 py-4 bg-indigo-600 text-white font-bold rounded-full shadow-lg hover:bg-indigo-700 hover:shadow-indigo-500/30 transition-all flex items-center gap-2">
+              <RotateCcw size={20} /> Flip Card
+            </button>
+            <button onClick={nextCard} className="p-4 bg-white text-slate-600 rounded-full shadow hover:shadow-md hover:translate-x-1 hover:text-indigo-600 transition-all">
+              <ChevronRight size={28} />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
-  const currentCard = currentDeck[currentIndex];
+  const renderQuizMode = () => {
+    if (!quizQuestions || quizQuestions.length === 0) return null;
+
+    if (quizFinished) {
+      return (
+        <div className="flex flex-col items-center justify-center w-full max-w-lg mt-12 bg-white p-10 rounded-3xl shadow-xl text-center border-t-8 border-emerald-500">
+          <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 mx-auto bg-emerald-100 text-emerald-500">
+            <CheckCircle2 size={48} />
+          </div>
+          <h2 className="text-4xl font-bold text-slate-800 mb-2">Quiz Complete!</h2>
+          <p className="text-slate-500 mb-8 text-xl font-medium">You scored <b className="text-indigo-600">{correctCount}</b> out of {totalAnswered}</p>
+          <button onClick={() => setAppMode('menu')} className="px-8 py-4 bg-indigo-600 text-white font-bold rounded-full shadow hover:bg-indigo-700 transition-colors w-full text-lg">
+            Back to Menu
+          </button>
+        </div>
+      );
+    }
+
+    const currentQ = quizQuestions[currentIndex];
+    const currentAnswer = quizAnswers[currentIndex];
+    
+    const isReverse = appMode === 'reverse_quiz';
+    const isHanziMatch = appMode === 'hanzi_quiz';
+    const isStrokeQuiz = appMode === 'quiz';
+
+    return (
+      <div className="flex flex-col items-center justify-center w-full max-w-3xl mt-4 pb-12">
+        {/* Header */}
+        <div className="w-full flex justify-between items-center mb-6 px-4">
+          <span className="text-sm font-bold text-slate-500 bg-white px-4 py-2 rounded-full shadow-sm">
+            Question {currentIndex + 1} of {quizQuestions.length}
+          </span>
+          <span className="text-sm font-bold text-indigo-700 bg-indigo-100 px-4 py-2 rounded-full shadow-sm">
+            Score: {correctCount} / {totalAnswered}
+          </span>
+        </div>
+
+        {/* Prompt Card */}
+        <div className="w-full bg-white rounded-3xl shadow-lg p-8 mb-6 border border-slate-100 min-h-[200px] flex flex-col items-center justify-center relative">
+          <button onClick={(e) => playBrowserAudio(currentQ.card.word, e)} className="absolute top-4 right-4 p-3 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 rounded-full transition-colors z-10">
+            <Volume2 size={24} />
+          </button>
+
+          {isReverse && (
+            <>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest absolute top-6">Translation Needed</p>
+              <h2 className="text-4xl md:text-5xl font-bold text-slate-800 text-center leading-tight mt-4">{currentQ.card.meaning}</h2>
+            </>
+          )}
+
+          {isHanziMatch && (
+            <>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest absolute top-6">Match Hanzi</p>
+              <div className="flex flex-col items-center mt-4">
+                <h2 className="text-4xl md:text-5xl font-bold text-indigo-600 text-center mb-2">{currentQ.card.pinyin}</h2>
+                <p className="text-xl font-medium text-slate-500 text-center">"{currentQ.card.meaning}"</p>
+              </div>
+            </>
+          )}
+
+          {isStrokeQuiz && (
+            <>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest absolute top-6">What does this mean?</p>
+              <div className="flex flex-col items-center mt-4 w-full">
+                <h2 className="text-6xl font-extrabold text-slate-800 text-center mb-2 tracking-widest">{currentQ.card.word}</h2>
+                {showPinyinInStrokeQuiz && <p className="text-2xl font-bold text-indigo-600 mb-4">{currentQ.card.pinyin}</p>}
+                <div className={`scale-100 sm:scale-110 ${!showPinyinInStrokeQuiz ? 'mt-4' : ''}`}>
+                   <StrokeOrderAnimator key={`std-${currentQ.card.word}`} word={currentQ.card.word} showOutline={true} autoPlay={true} hideAnimateButton={false} />
+                </div>
+              </div>
+            </>
+          )}
+
+          {(isReverse || isHanziMatch) && currentAnswer && (
+              <div className="mt-6 flex flex-col items-center animate-fade-in border-t border-slate-100 w-full pt-6">
+                <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Correct Hanzi</p>
+                {isReverse && <p className="text-lg font-bold text-indigo-600 mb-2">{currentQ.card.pinyin}</p>}
+                <div className="scale-75 origin-top"><StrokeOrderAnimator key={`rev-${currentQ.card.word}`} word={currentQ.card.word} showOutline={true} autoPlay={true} hideAnimateButton={false}/></div>
+              </div>
+          )}
+        </div>
+
+        {/* Options Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full px-4 mb-6">
+          {currentQ.options.map((option, idx) => {
+            let buttonClass = "p-5 rounded-2xl border-2 text-left transition-all focus:outline-none flex items-center justify-between ";
+            let icon = null;
+
+            if (currentAnswer) {
+              const isCorrect = option.word === currentQ.card.word;
+              const isSelected = currentAnswer.option.word === option.word;
+
+              if (isCorrect) {
+                buttonClass += "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm";
+                icon = <CheckCircle2 size={24} className="text-emerald-500 ml-3 shrink-0" />;
+              } else if (isSelected && !currentAnswer.isCorrect) {
+                buttonClass += "border-rose-500 bg-rose-50 text-rose-700 shadow-sm";
+                icon = <XCircle size={24} className="text-rose-500 ml-3 shrink-0" />;
+              } else {
+                buttonClass += "border-slate-200 bg-slate-50 text-slate-400 opacity-50";
+              }
+            } else {
+              buttonClass += "border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-md active:scale-[0.98]";
+            }
+
+            return (
+              <button key={idx} onClick={() => handleQuizAnswer(option)} className={buttonClass} disabled={currentAnswer !== undefined}>
+                {isReverse && (
+                  <div className="flex flex-col">
+                    <span className="text-3xl font-bold mb-1">{option.word}</span>
+                    {showPinyinInReverseQuiz && <span className="text-sm font-medium opacity-80">{option.pinyin}</span>}
+                  </div>
+                )}
+                {isHanziMatch && <div className="flex w-full justify-center"><span className="text-4xl font-bold tracking-widest">{option.word}</span></div>}
+                {isStrokeQuiz && <span className="text-xl font-bold">{option.meaning}</span>}
+                {icon}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Navigation Controls */}
+        <div className="flex items-center justify-between w-full mt-4 px-4">
+           <button onClick={prevQuestion} disabled={currentIndex === 0}
+             className="p-4 bg-white text-slate-600 rounded-full shadow hover:shadow-md hover:-translate-x-1 hover:text-indigo-600 transition-all disabled:opacity-30 disabled:hover:translate-x-0">
+             <ChevronLeft size={28} />
+           </button>
+           
+           {currentIndex === quizQuestions.length - 1 ? (
+             <button onClick={() => setQuizFinished(true)} className="px-8 py-4 bg-indigo-600 text-white font-bold rounded-full shadow-lg hover:bg-indigo-700 hover:scale-105 transition-all flex items-center gap-2">
+               Finish Quiz <CheckCircle2 size={20} />
+             </button>
+           ) : (
+             <button onClick={nextQuestion} className="p-4 bg-white text-slate-600 rounded-full shadow hover:shadow-md hover:translate-x-1 hover:text-indigo-600 transition-all">
+               <ChevronRight size={28} />
+             </button>
+           )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800 selection:bg-indigo-200">
+      
+      {/* Top Navigation */}
       {appMode !== 'menu' && (
-        <div className="w-full bg-white shadow-sm sticky top-0 z-50"><div className="max-w-5xl mx-auto p-4 flex items-center justify-between"><button onClick={() => setAppMode('menu')} className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-bold px-4 py-2 hover:bg-slate-50 rounded-full text-sm"><ArrowLeft size={18} /> MENU</button>{appMode === 'study' ? <button onClick={() => { const shuffled = [...currentDeck].sort(() => Math.random() - 0.5); setCurrentDeck(shuffled); setCurrentIndex(0); setIsFlipped(false); }} className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-bold px-4 py-2 hover:bg-slate-50 rounded-full text-sm"><Shuffle size={16} /> SHUFFLE</button> : <div className="w-24" />}</div></div>
+        <div className="w-full bg-white shadow-sm sticky top-0 z-50">
+          <div className="max-w-5xl mx-auto p-4 flex items-center justify-between">
+            <button onClick={() => setAppMode('menu')} className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-bold px-4 py-2 hover:bg-slate-50 rounded-full text-sm">
+              <ArrowLeft size={18} /> MENU
+            </button>
+            
+            <h2 className="font-extrabold text-slate-800 tracking-tight hidden sm:block text-lg">
+              {appMode === 'study' && 'Flashcards'}
+              {appMode === 'quiz' && 'Stroke Order Quiz'}
+              {appMode === 'reverse_quiz' && 'Reverse Translation Quiz'}
+              {appMode === 'hanzi_quiz' && 'Hanzi Match Quiz'}
+            </h2>
+            
+            {appMode === 'study' ? (
+              <button onClick={() => {
+                  const shuffled = [...currentDeck].sort(() => Math.random() - 0.5);
+                  setCurrentDeck(shuffled); setCurrentIndex(0); setIsFlipped(false);
+                }}
+                className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-bold px-4 py-2 hover:bg-slate-50 rounded-full text-sm"
+              >
+                <Shuffle size={16} /> SHUFFLE
+              </button>
+            ) : <div className="w-24"></div>}
+          </div>
+        </div>
       )}
+
+      {/* Main Content */}
       <div className="flex flex-col items-center justify-center p-4 flex-1">
         {appMode === 'menu' && renderMenu()}
-        {appMode === 'study' && currentCard && (
-          <div className="flex flex-col items-center justify-center w-full max-w-2xl mt-4 pb-12"><div className="w-full relative group mb-8 perspective-1000"><div onClick={() => !isFlipped && setIsFlipped(true)} className={`relative w-full transition-transform duration-500 preserve-3d shadow-xl rounded-2xl min-h-[400px] cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`}><div className="absolute inset-0 backface-hidden bg-white rounded-2xl flex flex-col items-center justify-center p-8 border border-slate-100"><button onClick={(e) => playBrowserAudio(currentCard.word, e)} className="absolute top-4 right-4 p-3 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 rounded-full transition-colors z-10"><Volume2 size={24} /></button><StrokeOrderAnimator word={currentCard.word} /><p className="absolute bottom-6 text-sm text-slate-400 font-medium tracking-widest uppercase">Click to flip</p></div><div className="absolute inset-0 backface-hidden bg-white rounded-2xl border border-slate-100 rotate-y-180 flex flex-col items-center justify-center p-8 text-center"><h2 className="text-5xl font-bold text-slate-800 mb-6">{currentCard.pinyin}</h2><p className="text-3xl text-slate-600 font-medium leading-tight">{currentCard.meaning}</p></div></div></div><div className="flex gap-6"><button onClick={prevCard}><ChevronLeft size={28} /></button><button onClick={() => setIsFlipped(!isFlipped)}>Flip Card</button><button onClick={nextCard}><ChevronRight size={28} /></button></div></div>
-        )}
-        {['quiz','reverse_quiz','hanzi_quiz'].includes(appMode) && quizQuestions.length > 0 && (
-          <div className="w-full max-w-3xl">{quizFinished ? <div className="bg-white p-8 rounded-2xl text-center"><h2 className="text-3xl font-bold">Quiz Complete!</h2><p>You scored {correctCount} / {totalAnswered}</p>{totalAnswered-correctCount>0 && <button onClick={startReviewMode}>Review Mistakes</button>}<button onClick={() => setAppMode('menu')}>Back to Menu</button></div> : <div><div className="bg-white p-6 rounded-2xl mb-4"><h2 className="text-4xl font-bold">{quizQuestions[currentIndex].card.word}</h2>{showPinyinInStrokeQuiz && appMode==='quiz' && <p>{quizQuestions[currentIndex].card.pinyin}</p>}<StrokeOrderAnimator word={quizQuestions[currentIndex].card.word} autoPlay={appMode==='quiz'} hideAnimateButton={false} /></div><div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{quizQuestions[currentIndex].options.map((o,i)=><button key={i} onClick={()=>handleQuizAnswer(o)} disabled={!!quizAnswers[currentIndex]} className="p-4 border rounded">{appMode==='quiz'?o.meaning:o.word}{appMode==='reverse_quiz'&&showPinyinInReverseQuiz?` (${o.pinyin})`:''}</button>)}</div></div>}</div>
-        )}
+        {appMode === 'study' && renderStudyMode()}
+        {(appMode === 'quiz' || appMode === 'reverse_quiz' || appMode === 'hanzi_quiz') && renderQuizMode()}
       </div>
-      <style dangerouslySetInnerHTML={{__html:`.perspective-1000 { perspective: 1000px; }.preserve-3d { transform-style: preserve-3d; }.backface-hidden { backface-visibility: hidden; }.rotate-y-180 { transform: rotateY(180deg); }`}} />
+
+      <style dangerouslySetInnerHTML={{__html: `
+        .perspective-1000 { perspective: 1000px; }
+        .preserve-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      `}} />
     </div>
   );
 }
+
+
+
+
