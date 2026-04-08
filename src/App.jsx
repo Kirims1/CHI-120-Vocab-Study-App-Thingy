@@ -1200,7 +1200,7 @@ export default function App() {
               <GraduationCap size={40} className="text-indigo-600" />
             </div>
             <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">CHI 120 Study App</h1>
-            <p className="text-slate-500 font-medium mt-2">Master List Quizzes</p>
+            <p className="text-slate-500 font-medium mt-2"> Chinese Interactive Flashcards & Quizze</p>
           </div>
 
           <div className="mb-6">
@@ -1272,7 +1272,7 @@ export default function App() {
               <label className="flex items-center cursor-pointer group">
                 <input type="checkbox" className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 mr-3 border-slate-300"
                   checked={quizAudioEnabled} onChange={(e) => setQuizAudioEnabled(e.target.checked)} />
-                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Auto-play audio on correct answer</span>
+                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Auto-play audio</span>
               </label>
               <label className="flex items-center cursor-pointer group">
                 <input type="checkbox" className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 mr-3 border-slate-300"
@@ -1282,7 +1282,7 @@ export default function App() {
               <label className="flex items-center cursor-pointer group">
                 <input type="checkbox" className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 mr-3 border-slate-300"
                   checked={showPinyinInReverseQuiz} onChange={(e) => setShowPinyinInReverseQuiz(e.target.checked)} />
-                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Show Pinyin Options in Reverse Quiz</span>
+                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Show Pinyin in Reverse Quiz</span>
               </label>
             </div>
           </div>
