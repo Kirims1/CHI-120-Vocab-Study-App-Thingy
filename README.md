@@ -10,11 +10,6 @@ React + Vite vocabulary study app for CHI 120 with:
 - Reverse quiz (English → Chinese)
 - Hanzi match quiz (Pinyin → Hanzi)
 
-## Run locally
-
-```bash
-npm install
-npm run dev
-```
-
-Then open the local URL shown by Vite.
+Updates:
+-Added dialogue and Short Reading Taken From Master List of Quizzes. Not sure if teacher pulls exactly from list but is still good to have
+-If you miss any questions on quiz, at the end you'll be able to practice/review those
