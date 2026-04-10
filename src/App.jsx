@@ -1011,7 +1011,7 @@ const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideA
         ref={containerRef} 
         className="flex flex-wrap justify-center items-center min-h-[90px]" 
       />
-      {!hideAnimateButton (
+      {!hideAnimateButton && (
         <button
           onClick={animateAllStrokes}
           className="flex items-center gap-2 px-5 py-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:scale-105 rounded-full transition-all font-semibold shadow-sm text-sm"
