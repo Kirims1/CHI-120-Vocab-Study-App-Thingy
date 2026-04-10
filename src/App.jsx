@@ -1011,7 +1011,7 @@ const StrokeOrderAnimator = ({ word, showOutline = true, autoPlay = false, hideA
         ref={containerRef} 
         className="flex flex-wrap justify-center items-center min-h-[90px]" 
       />
-      {!hideAnimateButton && writersRef.current.length > 0 && (
+      {!hideAnimateButton (
         <button
           onClick={animateAllStrokes}
           className="flex items-center gap-2 px-5 py-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:scale-105 rounded-full transition-all font-semibold shadow-sm text-sm"
@@ -1272,7 +1272,7 @@ export default function App() {
               <label className="flex items-center cursor-pointer group">
                 <input type="checkbox" className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 mr-3 border-slate-300"
                   checked={quizAudioEnabled} onChange={(e) => setQuizAudioEnabled(e.target.checked)} />
-                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Auto-play audio</span>
+                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Auto-play audio On Correct Answer</span>
               </label>
               <label className="flex items-center cursor-pointer group">
                 <input type="checkbox" className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 mr-3 border-slate-300"
